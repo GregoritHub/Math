@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Pure Math Speedrun Calendar</title>
+  <!-- Preconnect and Google Fonts for modern sans-serif typeface -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset some default margins */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #1a237e;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    /* Grid for month cards */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    /* Individual month card */
+    .month-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+    .month-card h2 {
+      margin-top: 0;
+      color: #1a237e;
+      font-size: 1.2rem;
+    }
+    /* Task list styling */
+    .tasks {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 10px;
+    }
+    .tasks li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .tasks li label {
+      display: flex;
+      align-items: flex-start;
+      cursor: pointer;
+    }
+    .tasks li input[type="checkbox"] {
+      margin-right: 8px;
+      margin-top: 3px;
+      cursor: pointer;
+    }
+    .tasks li span {
+      flex: 1;
+    }
+    a {
+      color: #303f9f;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    /* Small explanatory paragraph */
+    .intro {
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto 30px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Pure Math Speedrun Calendar</h1>
+  <p class="intro">Use this calendar to track your progress over 24 months. Each month contains tasks derived from the two‑year speedrun plan. Check off tasks as you complete them—your progress will be saved locally in your browser.</p>
+  <!-- Calendar grid will be inserted here by JavaScript -->
+  <div class="calendar-grid" id="calendar"></div>
+  <script>
+    /*
+     * Data structure defining tasks for each month.  Each entry
+     * contains a title and an array of task objects.  The text
+     * property of each task supports embedded HTML for links.
+     */
+    const tasksData = [
+      {
+        month: 1,
+        title: "Month 1: Proof/Logic Engine",
+        tasks: [
+          { text: "Study sets, functions, relations and induction in <a href=\"https://forallx.openlogicproject.org/\" target=\"_blank\">forall x</a> and the Open Logic Project." },
+          { text: "Watch MIT 6.042J lectures on logic and induction and complete problem sets." },
+          { text: "Create an Anki deck for definitions and proof techniques." }
+        ]
+      },
+      {
+        month: 2,
+        title: "Month 2: Proof/Logic Engine",
+        tasks: [
+          { text: "Continue practising logic proofs using exercises from MIT 6.042J and <a href=\"https://proofwiki.org/wiki/Main_Page\" target=\"_blank\">ProofWiki</a>." },
+          { text: "Write proofs using direct, contrapositive and contradiction methods; update Anki deck." },
+          { text: "Experiment with basic theorems in SageMath or Lean." }
+        ]
+      },
+      {
+        month: 3,
+        title: "Month 3: Proof/Logic Engine",
+        tasks: [
+          { text: "Finish problem sets from MIT 6.042J and <em>forall x</em>." },
+          { text: "Write a short reflection on how quantifiers and induction interplay in proofs." },
+          { text: "Prepare for Real Analysis by reviewing supremum/infimum concepts." }
+        ]
+      },
+      {
+        month: 4,
+        title: "Month 4: Real Analysis I (Part A)",
+        tasks: [
+          { text: "Study the real number system, sequences and limits using Trench’s <em>Introduction to Real Analysis</em> and Thomson–Bruckner’s text." },
+          { text: "Watch MIT 18.100B lectures on sequences and limits." },
+          { text: "Create Anki cards for limit definitions (ε–δ), supremum and countability." },
+          { text: "Prove at least one ε–δ statement on your own and compare to examples on ProofWiki." }
+        ]
+      },
+      {
+        month: 5,
+        title: "Month 5: Real Analysis I (Part A)",
+        tasks: [
+          { text: "Solve exercises on sequences, convergence and subsequences from Trench’s and Thomson–Bruckner’s texts." },
+          { text: "Review monotone convergence and Cauchy criteria." },
+          { text: "Use SageMath or Python to generate numerical examples of convergent and divergent sequences." },
+          { text: "Prove two additional ε–δ limit statements; write them in your journal." }
+        ]
+      },
+      {
+        month: 6,
+        title: "Month 6: Real Analysis I (Part A)",
+        tasks: [
+          { text: "Study countable and uncountable sets; practise proofs of countability." },
+          { text: "Summarise Chapter 2 of Trench’s text and share notes with a study partner." },
+          { text: "Complete a checkpoint: prove five ε–δ statements and compile your proofs." }
+        ]
+      },
+      {
+        month: 7,
+        title: "Month 7: Real Analysis I (Part B)",
+        tasks: [
+          { text: "Begin differentiation: read about continuity, differentiability and the Mean Value Theorem." },
+          { text: "Watch MIT 18.100B lectures on differentiation and practise derivative proofs." },
+          { text: "Use SageMath to approximate derivatives and visualise functions." }
+        ]
+      },
+      {
+        month: 8,
+        title: "Month 8: Real Analysis I (Part B)",
+        tasks: [
+          { text: "Study Riemann integration and properties of integrable functions." },
+          { text: "Read about series of functions and uniform convergence; start practising problems." },
+          { text: "Prove the Fundamental Theorem of Calculus for simple functions and document your proof." },
+          { text: "Write notes on the difference between pointwise and uniform convergence." }
+        ]
+      },
+      {
+        month: 9,
+        title: "Month 9: Real Analysis I (Part B)",
+        tasks: [
+          { text: "Practise more integration and series problems; check your answers against solutions when available." },
+          { text: "Study convergence tests for series and prepare a summary sheet." },
+          { text: "Complete a checkpoint: write an essay comparing pointwise vs uniform convergence with examples." }
+        ]
+      },
+      {
+        month: 10,
+        title: "Month 10: Abstract Algebra I (Part A)",
+        tasks: [
+          { text: "Read Chapters 1–3 of Judson’s <em>Abstract Algebra</em> (groups, subgroups, cyclic groups)." },
+          { text: "Watch MIT 18.701 lectures on group theory topics." },
+          { text: "Practise problems on cyclic groups, homomorphisms and isomorphisms." },
+          { text: "Implement permutation groups in SageMath or GAP." }
+        ]
+      },
+      {
+        month: 11,
+        title: "Month 11: Abstract Algebra I (Part A)",
+        tasks: [
+          { text: "Continue reading Chapters 4–6 (permutation groups, cosets and Lagrange’s theorem)." },
+          { text: "Prove Lagrange’s theorem and classification of finite cyclic groups." },
+          { text: "Create flashcards for group axioms and common examples." },
+          { text: "Write a short essay explaining why every group of prime order is cyclic." }
+        ]
+      },
+      {
+        month: 12,
+        title: "Month 12: Abstract Algebra I (Part A)",
+        tasks: [
+          { text: "Complete selected exercises from Chapters 1–6." },
+          { text: "Review key theorems and proofs; prepare for ring theory." },
+          { text: "Summarise what you’ve learned about groups and cosets in your journal." }
+        ]
+      },
+      {
+        month: 13,
+        title: "Month 13: Abstract Algebra I (Part B)",
+        tasks: [
+          { text: "Begin ring theory: study ring definitions, examples and basic properties." },
+          { text: "Read Chapters 7–10 of Judson’s text and watch MIT 18.701 lectures on rings." },
+          { text: "Prove basic properties of rings and ideals; practise problems." },
+          { text: "Create an Anki deck for ring definitions and theorems." }
+        ]
+      },
+      {
+        month: 14,
+        title: "Month 14: Abstract Algebra I (Part B)",
+        tasks: [
+          { text: "Study quotient rings, integral domains and Euclidean domains." },
+          { text: "Prove that every finite integral domain is a field; work on examples of Euclidean domains." },
+          { text: "Use SageMath to factor polynomials over different fields." },
+          { text: "Summarise the First Isomorphism Theorem and attempt to formalise it in Lean or Coq." }
+        ]
+      },
+      {
+        month: 15,
+        title: "Month 15: Abstract Algebra I (Part B)",
+        tasks: [
+          { text: "Complete exercises on polynomial rings and field extensions." },
+          { text: "Write a summary of ring homomorphisms and ideals in your notes." },
+          { text: "Review group and ring theory to prepare for topology." }
+        ]
+      },
+      {
+        month: 16,
+        title: "Month 16: Point‑Set Topology I",
+        tasks: [
+          { text: "Study topological spaces, bases and subbases using <em>Topology Without Tears</em>." },
+          { text: "Watch MIT 18.901 lectures on basic topology." },
+          { text: "Practise problems on open and closed sets and product spaces." },
+          { text: "Draw diagrams of simple topologies (e.g., discrete vs indiscrete) in your notebook." }
+        ]
+      },
+      {
+        month: 17,
+        title: "Month 17: Point‑Set Topology I",
+        tasks: [
+          { text: "Learn about continuous maps, homeomorphisms and quotient topologies." },
+          { text: "Solve exercises on continuity and product/quotient constructions." },
+          { text: "Prove the Heine–Borel theorem and document your proof." },
+          { text: "Begin drafting a diagram summarising separation axioms (T0, T1, T2, etc.)." }
+        ]
+      },
+      {
+        month: 18,
+        title: "Month 18: Point‑Set Topology I",
+        tasks: [
+          { text: "Study connectedness and compactness; practise proving whether sets are connected or compact." },
+          { text: "Understand path‑connectedness and its relation to connectedness." },
+          { text: "Finish your diagram of separation axioms and review compactness theorems (continuous images of compact sets, etc.)." },
+          { text: "Solve exercises from Munkres or Hatcher for additional practice." }
+        ]
+      },
+      {
+        month: 19,
+        title: "Month 19: Point‑Set Topology I",
+        tasks: [
+          { text: "Complete remaining exercises and review notes; summarise key topology concepts." },
+          { text: "Prepare to transition to formalisation by reflecting on how topological definitions relate to logic and algebra." },
+          { text: "Write a short essay on how topology generalises ideas from analysis and algebra." }
+        ]
+      },
+      {
+        month: 20,
+        title: "Month 20: Formalization (Lean/Coq)",
+        tasks: [
+          { text: "Play through the Natural Number Game to learn Lean syntax and tactics." },
+          { text: "Install Lean locally or use an online editor; formalise simple group and ring theorems." },
+          { text: "Begin reading <em>Software Foundations</em> (Logical Foundations) to learn Coq basics." }
+        ]
+      },
+      {
+        month: 21,
+        title: "Month 21: Formalization (Lean/Coq)",
+        tasks: [
+          { text: "Formalise an ε–δ proof of a limit in Lean or Coq." },
+          { text: "Work through additional levels of the Natural Number Game or simple proofs in mathlib." },
+          { text: "Contribute a simple lemma or proof to an open repository (optional)." }
+        ]
+      },
+      {
+        month: 22,
+        title: "Month 22: Second Pass &amp; Glue",
+        tasks: [
+          { text: "Revisit earlier modules; skim through notes and redo difficult problems." },
+          { text: "Compile a glossary of major definitions and theorems." },
+          { text: "Select a theorem from logic, analysis, algebra and topology and formalise each in Lean or Coq." },
+          { text: "Create a \"proof portfolio\" of your best write‑ups." }
+        ]
+      },
+      {
+        month: 23,
+        title: "Month 23: Second Pass &amp; Glue",
+        tasks: [
+          { text: "Continue reviewing and integrating knowledge across subjects." },
+          { text: "Fill gaps by solving at least one previously skipped problem in each module." },
+          { text: "Prepare for your elective: gather resources and plan deliverables." }
+        ]
+      },
+      {
+        month: 24,
+        title: "Month 24: Elective and Synthesis",
+        tasks: [
+          { text: "Option A – Category Theory &amp; Advanced Algebra: study categories, functors and natural transformations using Riehl’s book; write a short exposition of the Yoneda lemma and formalise it." },
+          { text: "Option B – Algebraic Topology: use Hatcher’s text to study fundamental groups, covering spaces and homology; compute the fundamental group of the circle." },
+          { text: "Option C – Probability &amp; Measure Theory: explore measure theory and probability; prove the Dominated Convergence Theorem." },
+          { text: "Prepare a final report or formalisation project summarising your elective work." }
+        ]
+      }
+    ];
+
+    /*
+     * Load tasks from localStorage or initialize to an empty object.
+     * localStorage is keyed by 'tasksCompleted' and stores an object
+     * mapping month numbers to arrays of booleans representing task completion.
+     */
+    const saved = JSON.parse(localStorage.getItem('tasksCompleted') || '{}');
+
+    // Helper to save completion state back to local storage
+    function saveState() {
+      localStorage.setItem('tasksCompleted', JSON.stringify(saved));
+    }
+
+    // Render each month card and attach event listeners
+    function renderCalendar() {
+      const container = document.getElementById('calendar');
+      tasksData.forEach(monthData => {
+        const card = document.createElement('div');
+        card.className = 'month-card';
+        const h2 = document.createElement('h2');
+        h2.innerHTML = monthData.title;
+        card.appendChild(h2);
+        const ul = document.createElement('ul');
+        ul.className = 'tasks';
+        const monthKey = String(monthData.month);
+        // Ensure there is an array in saved for this month
+        if (!saved[monthKey]) {
+          saved[monthKey] = monthData.tasks.map(() => false);
+        }
+        monthData.tasks.forEach((task, index) => {
+          const li = document.createElement('li');
+          const label = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = saved[monthKey][index] || false;
+          checkbox.addEventListener('change', () => {
+            saved[monthKey][index] = checkbox.checked;
+            saveState();
+          });
+          const span = document.createElement('span');
+          span.innerHTML = task.text;
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          li.appendChild(label);
+          ul.appendChild(li);
+        });
+        card.appendChild(ul);
+        container.appendChild(card);
+      });
+      // Save initial state if not present
+      saveState();
+    }
+
+    // Initialize calendar on page load
+    renderCalendar();
+  </script>
+</body>
+</html>
